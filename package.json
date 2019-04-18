@@ -14,7 +14,6 @@
   "license": "MIT",
   "dependencies": {
     "date-range-array": "^2.1.0",
-    "download-file-sync": "^1.0.4",
     "shelljs": "^0.8.3"
   },
   "devDependencies": {

@@ -1,6 +1,5 @@
 const sh = require('shelljs')
 const dateRange = require('date-range-array')
-const download = require('download-file-sync')
 /**
  * @param {string} path
  * @param {string} start
@@ -25,9 +24,9 @@ module.exports.versions = function(path, start, end, options) {
  */
 function installVersion(version) {
     if (!sh.test("-d", version)) {
-        download(version)
-
-
+        sh.exec('npm pack ' + version)
+        sh.exec('tar -xzf ' + version + '.tgz')
+        sh.mv('package', version)
     }
 }
 
