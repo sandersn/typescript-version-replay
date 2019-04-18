@@ -4,10 +4,10 @@ const dateRange = require('date-range-array')
  * @param {string} path
  * @param {string} start
  * @param {string} end
- * @param {Options} options
+ * @param {Options} [options={}]
  */
-module.exports.dates = function (path, start, end, options) {
-    return dateRange(start, end).map(pipe(versionFromDate, installVersion))
+module.exports.dates = function (path, start, end, options = {}) {
+    return dateRange(start, end).map(pipe(versionFromDate, compile(path, options)))
 }
 /**
  * @param {string} path
@@ -20,14 +20,40 @@ module.exports.versions = function(path, start, end, options) {
 }
 
 /**
+ * @param {string} path
+ * @param {Options} options
+ * @return {(version: string) => [string, number | undefined]}
+ */
+function compile(path, options) {
+    return (version) => {
+        if (installVersion(version)) {
+            console.log(version)
+            const result = sh.exec(`node ${version}/lib/tsc.js --extendedDiagnostics -p ${path}`, { silent: true })
+            if (options.types) {
+                const m = result.stdout.match(/Types:\W+(\d+)/)
+                console.log([version, m ? Number.parseInt(m[1]) : undefined])
+                return [version, m ? Number.parseInt(m[1]) : undefined]
+            }
+            else if (options.errors) {
+                return [version, result.code]
+            }
+        }
+        return [version, undefined]
+    }
+}
+
+/**
  * @param {string} version
  */
 function installVersion(version) {
     if (!sh.test("-d", version)) {
-        sh.exec('npm pack ' + version)
-        sh.exec('tar -xzf ' + version + '.tgz')
+        if (sh.exec('npm pack typescript@' + version).code) {
+            return false;
+        }
+        sh.exec('tar -xzf typescript-' + version + '.tgz')
         sh.mv('package', version)
     }
+    return true
 }
 
 /** @param {string} date */
