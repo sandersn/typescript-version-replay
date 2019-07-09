@@ -13,7 +13,9 @@
   "author": "Nathan Shively-Sanders",
   "license": "MIT",
   "dependencies": {
+    "@types/semver": "^6.0.1",
     "date-range-array": "^2.1.0",
+    "semver": "^6.2.0",
     "shelljs": "^0.8.3"
   },
   "devDependencies": {
