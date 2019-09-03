@@ -8,4 +8,8 @@
     "resolveJsonModule": true,
     "strict": true
   },
+  "files": [
+    "types.d.ts",
+    "index.js"
+  ]
 }

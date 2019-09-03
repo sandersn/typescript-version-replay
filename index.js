@@ -30,7 +30,8 @@ function compile(path, options) {
     return (version) => {
         if (installVersion(version)) {
             console.log(version)
-            const result = sh.exec(`node ${version}/lib/tsc.js --extendedDiagnostics -p ${path}`, { silent: true })
+            const extended = options.types ? '--extendedDiagnostics ' : '';
+            const result = sh.exec(`node ${version}/lib/tsc.js ${extended} ${path}`, { silent: true })
             if (options.types) {
                 const m = result.stdout.match(/Types:\W+(\d+)/)
                 console.log([version, m ? Number.parseInt(m[1]) : undefined])
@@ -56,6 +57,7 @@ function installVersion(version) {
         if (sh.exec('npm pack typescript@' + version).code) {
             return false;
         }
+        // TODO: Doesn't work with 3.3 because of 3.3.4000 :eyeroll:
         sh.exec('tar -xzf typescript-' + version + '.?.tgz')
         sh.mv('package', version)
     }
@@ -106,6 +108,11 @@ function pipe(f, g) {
 
 // @ts-ignore
 if (!module.parent) {
-    console.log(module.exports.versions('/home/nathansa/src/test/welove.ts', '2.2', '3.5', { errors: true }))
+    if (process.argv.length > 2) {
+        console.log(module.exports.versions('/home/nathansa/src/test/welove.ts', process.argv[3], process.argv[4], { errors: true }))
+    }
+    else {
+        console.log(module.exports.versions('/home/nathansa/src/test/welove.ts', '2.2', '3.6', { errors: true }))
+    }
     // module.exports.dates('bob.ts', '2019-01-29', '2019-04-03', {});
 }
